@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cqnu.dlzf.dao.ChartRecordMapper">
+    <sql id="chartRecordColumns">
+        record_id,sender_id,receiver_id,content,time
+    </sql>
+
+    <insert id="insertChartRecord">
+        insert into t_chart_record(<include refid="chartRecordColumns"/>)
+        values(#{recordId},#{senderId},#{receiverId},#{content},#{time})
+    </insert>
+
+    <select id="selectChartRecordsByUserId" resultType="com.cqnu.dlzf.bean.ChartRecord">
+        select <include refid="chartRecordColumns"/>
+        from t_chart_record
+        <where>
+            (sender_id = #{userId} or receiver_id = #{userId}) and
+            (sender_id = #{friendId} or receiver_id = #{friendId})
+        </where>
+        order by time desc
+    </select>
+</mapper>

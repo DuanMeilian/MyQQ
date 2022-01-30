@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cqnu.dlzf.dao.UserFriendsMapper">
+    <resultMap id="userFriends" type="com.cqnu.dlzf.bean.UserFriends">
+        <id property="friendListId" column="friend_list_id"/>
+        <result property="latestChartContent" column="latest_chart_content"/>
+        <result property="latestChartTime" column="latest_chart_time"/>
+
+        <!-- 多表连接查询 -->
+        <association property="friend" javaType="com.cqnu.dlzf.bean.User">
+            <id property="userId" column="friend_id"/>
+            <result property="username" column="username"/>
+            <result property="password" column="password"/>
+            <result property="nickname" column="nickname"/>
+            <result property="image" column="image"/>
+            <result property="sign" column="sign"/>
+            <result property="state" column="state"/>
+        </association>
+        <association property="user" javaType="com.cqnu.dlzf.bean.User">
+            <id property="userId" column="user_id"/>
+        </association>
+    </resultMap>
+    <select id="selectFriendsByUserId" resultMap="userFriends">
+        select f.friend_list_id,
+        f.user_id user_id,
+        u.user_id friend_id,username,password,nickname,image,sign,state,latest_chart_time,latest_chart_content
+        from t_user u
+        join t_user_friends f
+        on f.user_id = #{userId} and f.friend_id = u.user_id
+        order by latest_chart_time desc
+    </select>
+
+    <update id="updateNewestUserFriend">
+        update t_user_friends
+        set latest_chart_content = #{content},
+        latest_chart_time = #{time}
+        where (user_id = #{senderId} and friend_id = #{receiverId}) or
+        (friend_id = #{senderId} and user_id = #{receiverId})
+    </update>
+
+    <insert id="insertUserFriend">
+        insert into t_user_friends(friend_list_id,user_id,friend_id,latest_chart_content,latest_chart_time)
+        values(#{userFriend.friendListId},#{userFriend.user.userId},#{userFriend.friend.userId},#{userFriend.latestChartContent},#{userFriend.latestChartTime});
+        insert into t_user_friends(friend_list_id,user_id,friend_id,latest_chart_content,latest_chart_time)
+        values(#{secondId},#{userFriend.friend.userId},#{userFriend.user.userId},#{userFriend.latestChartContent},#{userFriend.latestChartTime});
+
+        insert into t_chart_record(record_id,sender_id,receiver_id,content,time)
+        values(#{userFriend.friendListId},#{userFriend.user.userId},#{userFriend.friend.userId},#{userFriend.latestChartContent},#{userFriend.latestChartTime});
+    </insert>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <properties resource="jdbc.properties"/>
+
+    <settings>
+        <!-- 开启更完善的日志 -->
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <!--
+        开启自动驼峰命名规则映射：
+            如果数据库的列名为 xx_aa，java工程对应的实体类的属性名为xxAa，在写sql语句时不需要写别名，自动映射
+         -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        
+        <!-- 当传入的参数为NULL时，避免Oracle报错 -->
+        <setting name="jdbcTypeForNull" value="NULL"/>
+        
+        <!--
+            延迟加载（开启懒加载）：
+            可用于分布查询时，按需加载，比如查询分布student和course，没用到course时不会执行查询course的sql语句
+        -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+
+        <!-- 开启二级缓存 -->
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"/>
+    </plugins>
+
+    <environments default="development">
+
+        <!-- 可以存在多个环境，下面的是开发环境，由<environments>标签的default属性指定 -->
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url"
+                          value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL Server" value="sqlserver"/>
+    </databaseIdProvider>
+
+    <mappers>
+        <package name="com.cqnu.dlzf.dao"/>
+    </mappers>
+
+</configuration>
